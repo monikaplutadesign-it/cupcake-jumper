@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cupcake Jumper</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f7e9e9;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
+            flex-direction: column;
+        }
+
+        .game-container {
+            width: 100%;
+            max-width: 500px;
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2rem;
+            text-align: center;
+        }
+
+        .points-display {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 2rem;
+            color: #d84545;
+            font-weight: bold;
+            background-color: #fff;
+            padding: 0.5rem 1.5rem;
+            border-radius: 9999px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .cupcake {
+            font-size: 10rem;
+            cursor: pointer;
+            transition: transform 0.1s ease-out;
+            user-select: none;
+            will-change: transform;
+            animation: jump 1.5s ease-in-out infinite;
+        }
+
+        .cupcake.jump-effect {
+            animation: none;
+            transform: scale(1.1);
+        }
+
+        @keyframes jump {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .toast-container {
+            position: fixed;
+            top: 2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 100;
+            display: none;
+            padding: 0.75rem 1.5rem;
+            background-color: #d84545;
+            color: #fff;
+            border-radius: 9999px;
+            font-weight: bold;
+            text-align: center;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            transition: opacity 0.3s ease-in-out;
+        }
+
+        .toast-container.show {
+            display: block;
+            opacity: 1;
+            animation: fadeInOut 3s forwards;
+        }
+
+        @keyframes fadeInOut {
+            0% { opacity: 0; }
+            10%, 90% { opacity: 1; }
+            100% { opacity: 0; }
+        }
+
+        .reward-message {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 4rem;
+            font-weight: bold;
+            color: #ffd700;
+            text-shadow: 0 0 10px #ffcc00, 0 0 20px #ffcc00;
+            animation: popIn 1s forwards;
+        }
+
+        @keyframes popIn {
+            0% { transform: translate(-50%, -50%) scale(0); opacity: 0; }
+            80% { transform: translate(-50%, -50%) scale(1.2); opacity: 1; }
+            100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+        }
+    </style>
+</head>
+<body class="bg-[#e9f2ff]">
+    <div class="game-container">
+        <!-- Points Counter with an icon as requested -->
+        <div class="points-display">
+            <span role="img" aria-label="Points icon">⭐</span>
+            <span id="points-counter">0</span>
+        </div>
+
+        <!-- The main clickable game element (Cupcake) -->
+        <div id="cupcake" class="cupcake">🧁</div>
+    </div>
+
+    <!-- Toast message container -->
+    <div id="toast" class="toast-container opacity-0"></div>
+
+    <script>
+        // DOM elements
+        const cupcakeEl = document.getElementById('cupcake');
+        const pointsCounterEl = document.getElementById('points-counter');
+        const toastEl = document.getElementById('toast');
+
+        // Game state
+        let points = 0;
+        let clicks = 0;
+        let hasReceivedReward = false;
+
+        // The toast messages
+        const toastMessages = ["You're the best!", "I love you!"];
+
+        function showToast(message) {
+            toastEl.textContent = message;
+            toastEl.classList.add('show');
+            setTimeout(() => {
+                toastEl.classList.remove('show');
+            }, 3000); // Display for 3 seconds
+        }
+
+        function handleCupcakeClick() {
+            // Add a temporary jump effect on click
+            cupcakeEl.classList.add('jump-effect');
+            setTimeout(() => {
+                cupcakeEl.classList.remove('jump-effect');
+            }, 100);
+
+            // Generate random points between 5 and 100
+            const randomPoints = Math.floor(Math.random() * 96) + 5;
+            points += randomPoints;
+            clicks++;
+
+            // Update the points display
+            pointsCounterEl.textContent = points;
+
+            // Check for the exclusive reward
+            if (clicks >= 20 && !hasReceivedReward) {
+                points += 1000;
+                hasReceivedReward = true;
+                pointsCounterEl.textContent = points; // Update display with new points
+                
+                // Show a big, exclusive reward message
+                const rewardMessage = document.createElement('div');
+                rewardMessage.textContent = '🎉 Exclusive Reward! 🎉';
+                rewardMessage.classList.add('reward-message');
+                document.body.appendChild(rewardMessage);
+
+                // Remove the message after a few seconds
+                setTimeout(() => {
+                    rewardMessage.remove();
+                }, 4000);
+            }
+
+            // Randomly display a toast message
+            if (Math.random() > 0.5) {
+                const message = toastMessages[Math.floor(Math.random() * toastMessages.length)];
+                showToast(message);
+            }
+        }
+
+        // Attach the click event listener
+        cupcakeEl.addEventListener('click', handleCupcakeClick);
+    </script>
+</body>
+</html>
